@@ -13,37 +13,44 @@ for line in fh.readlines():
   else:
     print "ERROR : " + line
 
-run = 2503
 #Test:
-#run = 1000
 #reindeer = {"Comet" : [14,10,127], "Dancer": [16, 11, 162]}
 
-stats = defaultdict(lambda: defaultdict(int))
+class State:
+  def __init__(self, data):
+    self.distance = 0
+    self.points = 0
+    self.state = "Running"
+    self.stateChange = data[1]
+    self.speed = data[0]
+    self.run = data[1]
+    self.rest = data[2]
+
 results = dict()
-
 for name, data in reindeer.iteritems():
-  print name, data
-  sec = 0
-  distance = 0
-  while sec < run:
-    flySec = 0
-    while flySec < data[1] and sec < run:
-      distance += data[0]
-      flySec += 1
-      sec += 1
-      stats[sec][name] = distance
-    restSec = 0
-    while restSec < data[2] and sec < run:
-      restSec += 1
-      sec += 1
-      stats[sec][name] = distance
-  results[name] = distance
+  results[name] = State(data)
 
-for sec in stats.keys():
-  data = stats[sec]
-  maxValue = max(data.values())
-  top = [r for r in data.keys() if data[r] == maxValue]
+sec = 0
+while sec < 2503:
+  sec += 1
+  for name, data in reindeer.iteritems():
+    state = results[name]
+    if state.state == "Running":
+      state.distance += state.speed
+
+    if sec == state.stateChange:
+      if state.state == "Running":
+        state.state = "Resting"
+        state.stateChange = sec + state.rest
+      else:
+        state.state = "Running"
+        state.stateChange = sec + state.run
+
+  maxValue = max([r.distance for r in results.values()])
+  top = [r for r in results.keys() if results[r].distance == maxValue]
   for r in top:
-    results[r] += 1
+    results[r].points += 1
 
-print results
+print [r + " " + str(results[r].distance) for r in results]
+print [r + " " + str(results[r].points) for r in results]
+
