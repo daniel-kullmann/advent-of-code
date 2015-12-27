@@ -1,3 +1,4 @@
+import sha
 rules = []
 target = None
 fh = open('19.txt', 'r')
@@ -9,35 +10,36 @@ for line in fh.readlines():
     else:
       target = line
 
-def longMatch(string):
-  result = 0
-  while string[result] == target[result] and result < len(string) and result < len(target):
-    result += 1
-  return result
-
-def process(value, rules):
-    results = set()
-    index = longMatch(value)
-    for (a,b) in rules:
-      strIndex = value.find(a, index)
-      if strIndex == index:
-          newStr = value[0:strIndex] + b + value[strIndex+len(a):]
-          results.add(newStr)
-    return list(results)
+def key(string):
+  return sha.new(string).hexdigest()
 
 print target
 print len(target)
-molecules = [(0,'e')]
+seen = set()
+molecules = [(0,target)]
 count = 0
-while molecules[0][1] != target:
+tries = 0
+misses = 0
+while len(molecules) > 0: #molecules[0][1] != 'e':
     molecule = molecules[0]
     molecules = molecules[1:]
-    for newMolecule in process(molecule[1], rules):
-        molecules.append((molecule[0]+1,newMolecule))
-    molecules.sort(key=lambda x: - longMatch(x[1]) + x[0]/10)
-    if len(molecules) > 5000: molecules = molecules[0:2500]
+    newMolecules = []
+    for r in rules:
+        index = molecule[1].rfind(r[1])
+        if index >= 0:
+            newMolecule = molecule[1][0:index] + r[0] + molecule[1][index+len(r[1]):]
+            if newMolecule == 'e':
+                print newMolecule, molecule[0]+1
+            if not key(newMolecule) in seen:
+                newMolecules.append((molecule[0]+1,newMolecule))
+                seen.add(key(newMolecule))
+        else:
+            misses += 1
+        tries += 1
+    for m in newMolecules:
+      molecules.append(m)
+    molecules.sort(key=lambda x: + len(x[1]))
     count += 1
-    if count % 1000 == 0:
-      ln = longMatch(molecules[0][1])
-      print len(molecules), ln, molecules[0][0], molecules[0][1][0:ln] + " " + molecules[0][1][ln:]
-print molecules
+    #if count % 100 == 0:
+    #  print tries, misses, len(molecules), len(molecules[0][1]), molecules[0][0], molecules[0][1]
+print molecules[0]
