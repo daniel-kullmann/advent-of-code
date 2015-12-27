@@ -83,12 +83,12 @@ def evaluate(items):
     armor = sum(map(lambda item: item[3], items))
     return (cost, fight(boss[:], [100, damage, armor]))
 
-minCost = 10000000
+maxCost = 0
 for w in weaponOptions:
     for a in armorOptions:
         for r in ringOptions:
             (cost, iWin) = evaluate(w+a+list(r))
-            if iWin:
-                minCost = min(minCost, cost)
-print minCost
+            if not iWin:
+                maxCost = max(maxCost, cost)
+print maxCost
 
