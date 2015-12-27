@@ -28,9 +28,11 @@ while len(molecules) > 0: #molecules[0][1] != 'e':
         index = molecule[1].rfind(r[1])
         if index >= 0:
             newMolecule = molecule[1][0:index] + r[0] + molecule[1][index+len(r[1]):]
+            if newMolecule == 'e':
+                print newMolecule, molecule[0]+1
             if not key(newMolecule) in seen:
                 newMolecules.append((molecule[0]+1,newMolecule))
-                seen.add(key(newMolecule)
+                seen.add(key(newMolecule))
         else:
             misses += 1
         tries += 1
@@ -38,6 +40,6 @@ while len(molecules) > 0: #molecules[0][1] != 'e':
       molecules.append(m)
     molecules.sort(key=lambda x: + len(x[1]))
     count += 1
-    if count % 100 == 0:
-      print tries, misses, len(molecules), len(molecules[0][1]), molecules[0][0], molecules[0][1]
+    #if count % 100 == 0:
+    #  print tries, misses, len(molecules), len(molecules[0][1]), molecules[0][0], molecules[0][1]
 print molecules[0]
